@@ -1,29 +1,23 @@
-#docker run -d -p 27017:27017 --name test-mongo mongo:latest
-
+import pymongo
+import random
 from typing import Optional, List
-
 from account.model import Account
 from account.storage.protocol import AccountsStorageProtocol
 
-import pymongo
-import random
-
 
 class AccountsMongoStorage(AccountsStorageProtocol):
+
     def __init__(self):
         self.db_client = pymongo.MongoClient("mongodb://localhost:27017/")
-
         self.current_db = self.db_client["pyloungedb"]
-
         self.collection = self.current_db["users"]
-
         self.collection.drop()
-
         self.collection = self.current_db["users"]
 
     def get_all_accounts(self) -> List[Account]:
         list_of_ids = []
         list_of_accounts = []
+
         for account in self.collection.find():
             list_of_ids.append(account["id"])
 
@@ -32,21 +26,25 @@ class AccountsMongoStorage(AccountsStorageProtocol):
 
         return list_of_accounts
 
-
-
-    
     def get_account_by_id(self, account_id: int) -> Optional[Account]:
-        account = self.collection.find_one({"id" : account_id})
-        account_dataclass = Account(account['id'], account['phone_number'], account['password'], account['status'])
+        account = self.collection.find_one({"id": account_id})
+        account_dataclass = Account(
+            account['id'],
+            account['phone_number'], 
+            account['password'], 
+            account['status']
+            )
         return account_dataclass
 
     def mark_account_as_blocked(self, account_id: int):
-        self.collection.find_one_and_update({"id": account_id}, {"$set": {"status": 'blocked'}})
+        self.collection.find_one_and_update(
+            {"id": account_id}, 
+            {"$set": {"status": 'blocked'}}
+            )
 
     def add_account(self) -> int:
         random_id = random.randint(1000, 9999)
         random_phone = f'8910{random_id}'
-
         account = Account(random_id, random_phone, 'password0000')
 
         self.collection.insert_one({
@@ -56,25 +54,14 @@ class AccountsMongoStorage(AccountsStorageProtocol):
             "status" : account.status.value
         })
 
-
     def set_account_processing(self, account_id: int) -> Optional[Account]:
-        self.collection.find_one_and_update({"id": account_id}, {"$set": {"status": 'processing'}})
+        self.collection.find_one_and_update(
+            {"id": account_id}, 
+            {"$set": {"status": 'processing'}}
+            )
 
     def set_account_pending(self, account_id: int) -> Optional[Account]:
-        self.collection.find_one_and_update({"id": account_id}, {"$set": {"status": 'pending'}})
-
-
-
-
-# db_client = pymongo.MongoClient("mongodb://localhost:27017/")
-
-# current_db = db_client["pyloungedb"]
-
-# collection = current_db["users"]
-
-
-# collection.find_one_and_update({"id": 4136}, {"$set": {"password": 'popocvdfpo'}})
-# print(collection.find_one({'id': 4136}))
-
-# for user in collection.find():
-#     print(user)
+        self.collection.find_one_and_update(
+            {"id": account_id}, 
+            {"$set": {"status": 'pending'}}
+            )

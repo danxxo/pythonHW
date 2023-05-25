@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-
 from account.model import AccountStatus
 from account.storage.protocol import AccountsStorageProtocol
 from account.storage.postgres import AccountsPostgresStorage
