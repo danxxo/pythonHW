@@ -17,15 +17,31 @@ class AccountsMongoStorage(AccountsStorageProtocol):
 
         self.collection = self.current_db["users"]
 
+        self.collection.drop()
+
+        self.collection = self.current_db["users"]
+
     def get_all_accounts(self) -> List[Account]:
-        ...
+        list_of_ids = []
+        list_of_accounts = []
+        for account in self.collection.find():
+            list_of_ids.append(account["id"])
+
+        for id in list_of_ids:
+            list_of_accounts.append(self.get_account_by_id(id))
+
+        return list_of_accounts
+
+
+
     
     def get_account_by_id(self, account_id: int) -> Optional[Account]:
         account = self.collection.find_one({"id" : account_id})
-        return account
+        account_dataclass = Account(account['id'], account['phone_number'], account['password'], account['status'])
+        return account_dataclass
 
     def mark_account_as_blocked(self, account_id: int):
-        ...
+        self.collection.find_one_and_update({"id": account_id}, {"$set": {"status": 'blocked'}})
 
     def add_account(self) -> int:
         random_id = random.randint(1000, 9999)
@@ -44,10 +60,11 @@ class AccountsMongoStorage(AccountsStorageProtocol):
 
 
     def set_account_processing(self, account_id: int) -> Optional[Account]:
-        ...
+        self.collection.find_one_and_update({"id": account_id}, {"$set": {"status": 'processing'}})
 
     def set_account_pending(self, account_id: int) -> Optional[Account]:
-        ...
+        self.collection.find_one_and_update({"id": account_id}, {"$set": {"status": 'pending'}})
+
 
 
 
@@ -57,12 +74,9 @@ class AccountsMongoStorage(AccountsStorageProtocol):
 
 # collection = current_db["users"]
 
-# pylounge = {
-#     "id" : 1,
-#     "phone_number" : "89101369672",
-#     "password" : "popopo"
-# }
 
-# ins_result = collection.insert_one(pylounge)
-# print(ins_result.inserted_id)
-# print(collection.find_one({"id" : 0}))
+# collection.find_one_and_update({"id": 4136}, {"$set": {"password": 'popocvdfpo'}})
+# print(collection.find_one({'id': 4136}))
+
+# for user in collection.find():
+#     print(user)
