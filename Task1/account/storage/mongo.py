@@ -11,8 +11,11 @@ class AccountsMongoStorage(AccountsStorageProtocol):
         self.db_client = pymongo.MongoClient("mongodb://localhost:27017/")
         self.current_db = self.db_client["pyloungedb"]
         self.collection = self.current_db["users"]
+        # self.collection.drop()
+        # self.collection = self.current_db["users"]
+
+    def __del__(self):
         self.collection.drop()
-        self.collection = self.current_db["users"]
 
     def get_all_accounts(self) -> List[Account]:
         list_of_ids = []
