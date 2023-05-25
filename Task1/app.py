@@ -39,17 +39,16 @@ def test_main():
         am.block_last_account()
         accounts = am.accounts_storage.get_all_accounts()
         assert len(accounts) == 10
-        print(accounts[0].status, AccountStatus.PENDING)
-        assert accounts[0].status == AccountStatus.PENDING
-        assert accounts[1].status == AccountStatus.PROCESSING
-        assert accounts[2].status == AccountStatus.PENDING
-        assert accounts[3].status == AccountStatus.PROCESSING
-        assert accounts[4].status == AccountStatus.PENDING
-        assert accounts[5].status == AccountStatus.PENDING
-        assert accounts[6].status == AccountStatus.PENDING
-        assert accounts[7].status == AccountStatus.PENDING
-        assert accounts[8].status == AccountStatus.PENDING
-        assert accounts[9].status == AccountStatus.BLOCKED
+        assert accounts[0].status == AccountStatus.PENDING.value
+        assert accounts[1].status == AccountStatus.PROCESSING.value
+        assert accounts[2].status == AccountStatus.PENDING.value
+        assert accounts[3].status == AccountStatus.PROCESSING.value
+        assert accounts[4].status == AccountStatus.PENDING.value
+        assert accounts[5].status == AccountStatus.PENDING.value
+        assert accounts[6].status == AccountStatus.PENDING.value
+        assert accounts[7].status == AccountStatus.PENDING.value
+        assert accounts[8].status == AccountStatus.PENDING.value
+        assert accounts[9].status == AccountStatus.BLOCKED.value
         print(f'With realisation {r} everything is OK')
 
 

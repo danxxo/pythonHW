@@ -56,8 +56,6 @@ class AccountsMongoStorage(AccountsStorageProtocol):
             "status" : account.status.value
         })
 
-        print(f'account {random_id} created')
-
 
     def set_account_processing(self, account_id: int) -> Optional[Account]:
         self.collection.find_one_and_update({"id": account_id}, {"$set": {"status": 'processing'}})
