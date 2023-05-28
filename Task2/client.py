@@ -1,14 +1,6 @@
 import socket
 import threading
 
-'''
-    Клиент
-        клиенты должны быть идентифицируемы (иметь id), например, могут вводить имя при входе
-        должны иметь возможность писать и читать сообщения асинхронно, не дожидаясь друг друга 
-        (можно испольовать потоки)
-        сообщения клиентов должны быть маршрутизируемыми, то есть помимо текста, содержать информацию, 
-        о том какому клиенту они предназначены (id), а адресат должен знать об отправителе
-'''
 
 class Client():
     def __init__(self) -> None:
@@ -24,16 +16,17 @@ class Client():
         recieve_thread = threading.Thread(target=self.client_recieve)
         recieve_thread.start()
 
-        send_thread = threading.Thread(self.client_send)
+        send_thread = threading.Thread(target=self.client_send)
         send_thread.start()
 
     def client_recieve(self):
         while True:
             try:
                 message = self.client_socket.recv(1024).decode('utf-8')
-                if message == 'User: ':
+                if message == 'User':
+                    print('Client send')
                     self.client_socket.send(self.user.encode('utf-8'))
-                elif message == 'Room: ':
+                elif message == 'Room':
                     self.client_socket.send(self.room.encode('utf-8'))
                 else:
                     print(message)
@@ -48,3 +41,12 @@ class Client():
             self.client_socket.send(message.encode('utf-8'))
 
 client = Client()
+
+'''
+    Клиент
+        клиенты должны быть идентифицируемы (иметь id), например, могут вводить имя при входе
+        должны иметь возможность писать и читать сообщения асинхронно, не дожидаясь друг друга 
+        (можно испольовать потоки)
+        сообщения клиентов должны быть маршрутизируемыми, то есть помимо текста, содержать информацию, 
+        о том какому клиенту они предназначены (id), а адресат должен знать об отправителе
+'''
