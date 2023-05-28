@@ -1,26 +1,50 @@
 import socket
+import threading
 
+'''
+    Клиент
+        клиенты должны быть идентифицируемы (иметь id), например, могут вводить имя при входе
+        должны иметь возможность писать и читать сообщения асинхронно, не дожидаясь друг друга 
+        (можно испольовать потоки)
+        сообщения клиентов должны быть маршрутизируемыми, то есть помимо текста, содержать информацию, 
+        о том какому клиенту они предназначены (id), а адресат должен знать об отправителе
+'''
 
-def client():
-    host = socket.gethostname()  # получаем имя хоста
-    port = 55000  # указываем порт сервера
+class Client():
+    def __init__(self) -> None:
+        self.host = socket.gethostname()
+        self.port = 55000
 
-    client_socket = socket.socket()
-    client_socket.connect((host, port))  # соединяемся с сервером
+        self.client_socket = socket.socket()
+        self.client_socket.connect((self.host, self.port))
 
-    message = input("Введите сообщение: ")
+        self.user = input('User: ')
+        self.room = input('Room: ')
 
-    while message.strip() != 'close':
-        client_socket.send(message.encode())  # отправляем сообщение
-        print(f"Ожидаем сообщение от сервера")
-        data = client_socket.recv(1024).decode()  # получаем данные
+        recieve_thread = threading.Thread(target=self.client_recieve)
+        recieve_thread.start()
 
-        print(f'Received from server: {data}')
+        send_thread = threading.Thread(self.client_send)
+        send_thread.start()
 
-        message = input("Введите сообщение: ")
+    def client_recieve(self):
+        while True:
+            try:
+                message = self.client_socket.recv(1024).decode('utf-8')
+                if message == 'User: ':
+                    self.client_socket.send(self.user.encode('utf-8'))
+                elif message == 'Room: ':
+                    self.client_socket.send(self.room.encode('utf-8'))
+                else:
+                    print(message)
+            except:
+                print('error')
+                self.client_socket.close()
+                break
 
-    client_socket.close()  # закрываем соединение
+    def client_send(self):
+        while True:
+            message = f'\'{self.user}\': {input()}'
+            self.client_socket.send(message.encode('utf-8'))
 
-
-if __name__ == '__main__':
-    client()
+client = Client()
