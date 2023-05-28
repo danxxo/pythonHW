@@ -13,11 +13,7 @@ class Client():
         self.user = input('User: ')
         self.room = input('Room: ')
 
-        recieve_thread = threading.Thread(target=self.client_recieve)
-        recieve_thread.start()
 
-        send_thread = threading.Thread(target=self.client_send)
-        send_thread.start()
 
     def client_recieve(self):
         while True:
@@ -41,6 +37,11 @@ class Client():
             self.client_socket.send(message.encode('utf-8'))
 
 client = Client()
+recieve_thread = threading.Thread(target=client.client_recieve)
+recieve_thread.start()
+
+send_thread = threading.Thread(target=client.client_send)
+send_thread.start()
 
 '''
     Клиент

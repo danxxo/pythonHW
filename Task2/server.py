@@ -24,7 +24,7 @@ class Server():
 
         self.user_connection_table = {}
 
-        self.rooms = {}
+        self.rooms = {'1': []}
 
         self.run()
 
@@ -55,8 +55,9 @@ class Server():
             except:
                 #TODO caching
 
-                connection.close()
+
                 self.send_room_message(room, f'\'{user}\' disconnected from'.encode('utf-8'))
+                connection.close()
                 self.user_connection_table.pop(user)
                 self.rooms[room].remove(user)
                 break
@@ -78,7 +79,7 @@ class Server():
             print(user, room)
 
             self.user_connection_table[user] = connection
-            self.rooms[room] = [user]
+            self.rooms[room].append(user)
 
             self.send_room_message(room, f'\'{user}\' connected to the room. Welcome'.encode('utf-8'))
 
