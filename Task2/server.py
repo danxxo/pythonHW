@@ -1,5 +1,7 @@
 import socket
 import threading
+from threading import Event, Lock
+import time
 # Первым должен быть запущен сервер! servier и client должны быть запущены в разных терминалах / вкладках PyCharm (IDE)
 
 '''
@@ -24,9 +26,10 @@ class Server():
 
         self.user_connection_table = {}
 
-        self.rooms = {'1': []}
+        self.rooms = {'1': [], '2': []}
 
-        self.run()
+        self.mutex = Lock()
+
 
     # def __del__(self):
     #     self.conn.close()
@@ -51,15 +54,30 @@ class Server():
             try:
                 connection = self.user_connection_table.get(user)
                 message = connection.recv(1024)
+                message_decoded = message.decode('utf-8')
+
+                # if message_decoded[message_decoded.find(':')+2:len(message_decoded)] == 'close':
+                #     self.send_room_message(room, f'\'{user}\' disconnected from'.encode('utf-8'))
+                #     connection.send('close'.encode('utf-8'))
+                #     time.sleep(2)
+                #     connection.close()
+                #     self.user_connection_table.pop(user)
+                #     self.rooms[room].remove(user)
+                #     print(self.user_connection_table)
+                #     print(self.rooms)
+                #     return
+                
                 self.send_room_message(room, message)
+                # print(threading.active_count())
             except:
                 #TODO caching
-
-
+                break
                 self.send_room_message(room, f'\'{user}\' disconnected from'.encode('utf-8'))
                 connection.close()
                 self.user_connection_table.pop(user)
                 self.rooms[room].remove(user)
+                print(self.user_connection_table)
+                print(self.rooms)
                 break
 
     def add_user_to_room(self, user, room):
@@ -76,8 +94,6 @@ class Server():
             connection.send('Room'.encode('utf-8'))
             room = connection.recv(1024).decode('utf-8')
 
-            print(user, room)
-
             self.user_connection_table[user] = connection
             self.rooms[room].append(user)
 
@@ -85,6 +101,9 @@ class Server():
 
             thread = threading.Thread(target=self.handle_client, args=[room, user])
             thread.start()
+            thread.join()
+    
 
 
 server = Server(users=3)
+server.run()

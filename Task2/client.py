@@ -10,8 +10,12 @@ class Client():
         self.client_socket = socket.socket()
         self.client_socket.connect((self.host, self.port))
 
+        self.threads = []
+
         self.user = input('User: ')
         self.room = input('Room: ')
+
+
 
 
 
@@ -24,6 +28,9 @@ class Client():
                     self.client_socket.send(self.user.encode('utf-8'))
                 elif message == 'Room':
                     self.client_socket.send(self.room.encode('utf-8'))
+                elif message == 'close':
+                    self.end()
+                    return
                 else:
                     print(message)
             except:
@@ -33,15 +40,31 @@ class Client():
 
     def client_send(self):
         while True:
-            message = f'\'{self.user}\': {input()}'
+            input_message = input()
+            if input_message == 'close':
+                self.end()
+                return
+            message = f'\'{self.user}\': {input_message}'
             self.client_socket.send(message.encode('utf-8'))
 
+
+    def end(self):
+        for i in self.threads:
+            i.join()
+
 client = Client()
+
 recieve_thread = threading.Thread(target=client.client_recieve)
 recieve_thread.start()
 
 send_thread = threading.Thread(target=client.client_send)
 send_thread.start()
+
+# send_thread.join()
+# recieve_thread.join()
+
+# recieve_thread.join()
+# send_thread.join()
 
 '''
     Клиент
