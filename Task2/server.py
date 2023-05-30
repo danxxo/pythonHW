@@ -1,29 +1,8 @@
-import socket
-import threading
-from threading import Event, Lock
-import time
+from threading import Event, Lock, Thread
 from pathlib import Path
+import socket
+import time
 
-
-# Первым должен быть запущен сервер! servier и client должны быть запущены в разных терминалах / вкладках PyCharm (IDE)
-
-'''
-    Сервер
-        должен служить для пересылки сообщений между клиентами
-        должен иметь возможность обрабатывать несколько сообщений, без ожиданий
-        может запоминать сообщения для клиентов, которых сейчас нет в чате
-        и при появлении клиента отдавать недоставленные сообщения
-'''
-
-
-'''
-    table dict :
-        client1 : object socket ... 1
-        client2 : object socket ... 2
-    
-    rooms:
-        'room1' : [client1, client2,  ... , ]
-'''
 
 class Server():
     def __init__(self, users=2) -> None:
@@ -107,7 +86,7 @@ class Server():
 
             self.send_room_message(room, f'\'{user}\' connected to the room. Welcome'.encode('utf-8'))
 
-            thread = threading.Thread(target=self.handle_client, args=[room, user])
+            thread = Thread(target=self.handle_client, args=[room, user])
             thread.start()
             # thread.join()
     
