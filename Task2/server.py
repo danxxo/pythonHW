@@ -18,6 +18,10 @@ class Server():
         self.user_connection_table = {}
         self.rooms = {'1': [], '2': []}
         self.room_path = Path('./cache')
+
+        if not Path.exists(self.room_path):
+            Path.mkdir(self.room_path)
+            
         self.mutex = Lock()
 
     def create_cached_files(self):
