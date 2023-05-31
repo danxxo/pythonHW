@@ -29,7 +29,7 @@ class AccountManager:
 
 def test_main():
     # realisations = [AccountsPostgresStorage, AccountsMongoStorage, AccountsRedisStorage]
-    realisations = [AccountsPostgresStorage]
+    realisations = [AccountsRedisStorage]
 
     for r in realisations:
         am = AccountManager(r())

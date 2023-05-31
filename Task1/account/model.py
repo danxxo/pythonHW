@@ -3,9 +3,9 @@ from enum import Enum
 
 
 class AccountStatus(Enum):
-    BLOCKED: str = "blocked"
-    PENDING: str = "pending"
-    PROCESSING: str = "processing"
+    BLOCKED : str = 'blocked'
+    PENDING : str = 'pending'
+    PROCESSING : str = 'processing'
 
 
 @dataclass
@@ -15,7 +15,7 @@ class Account:
     password: str
     status: AccountStatus = AccountStatus.PENDING
 
-    @classmethod
+    @classmethod        
     def as_dict(cls, account_dict: dict):
         match account_dict['status']:
             case 'pending':
@@ -24,10 +24,12 @@ class Account:
                 account_status = AccountStatus.BLOCKED
             case 'processing':
                 account_status = AccountStatus.PROCESSING
-
-        return cls (
+            
+        return cls(
             account_dict['id'],
-            account_dict['phone_number'],
-            account_dict['password'],
-            account_status
-        )
+            account_dict['phone_number'], 
+            account_dict['password'], 
+            account_status            
+            )
+
+

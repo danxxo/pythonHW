@@ -1,4 +1,4 @@
-from threading import Event, Lock, Thread
+from threading import Event, Lock, Thread, active_count
 from pathlib import Path
 import socket
 import time
@@ -54,6 +54,16 @@ class Server:
             try:
                 connection = self.user_connection_table.get(user)
                 message = connection.recv(1024)
+                decoded_msg = message.decode('utf-8')
+                print(f'have recieved message : {decoded_msg}')
+                if decoded_msg == 'close':
+                    connection.send('close'.encode('utf-8'))
+                    print(f'client {user} will be closed on clients side')
+                    print(f'running threads: {active_count()}')
+                    connection.close()
+                    self.user_connection_table.pop(user)
+                    self.rooms[room].remove(user)
+                    break
                 self.send_room_message(room, message)
                 with self.mutex:
                     self.cache(room, message)
