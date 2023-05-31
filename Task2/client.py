@@ -11,6 +11,8 @@ class Client:
         self.client_socket = socket.socket()
         self.client_socket.connect((self.host, self.port))
 
+        print('To end the connection, type: close')
+
         self.user = input("User: ")
         self.room = input("Room: ")
 
@@ -20,9 +22,7 @@ class Client:
         while True:
             try:
                 message = self.client_socket.recv(1024).decode("utf-8")
-                print(f'have recieved message: {message}')
                 if message == 'close':
-                    #self.client_socket.close()
                     print('clent recieving will be closed')
                     self.client_socket.close()
                     break
@@ -34,14 +34,12 @@ class Client:
                     print(message)
             except:
                 print("error")
-                #self.client_socket.close()
                 break
 
     def client_send(self):
         while True:
             input_msg = input()
             if input_msg == 'close':
-                print('client sending will be closed')
                 self.client_socket.send(input_msg.encode("utf-8"))
                 break
             else:
