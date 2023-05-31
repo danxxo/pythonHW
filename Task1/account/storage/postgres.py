@@ -11,14 +11,13 @@ from account.storage.protocol import AccountsStorageProtocol
 class AccountsPostgresStorage(AccountsStorageProtocol):
     def __init__(self):
         self.conn = psycopg2.connect(
-            host='localhost',
+            host="localhost",
             port=5432,
-            database='maga',
-            user='maga142rus',
-            password='maga142rus'
+            database="maga",
+            user="maga142rus",
+            password="maga142rus",
         )
         self._create_table()
-
 
     def _create_table(self):
         with self.conn.cursor() as cursor:
@@ -34,16 +33,13 @@ class AccountsPostgresStorage(AccountsStorageProtocol):
             )
             self.conn.commit()
 
-
     def _drop_table(self):
         with self.conn.cursor() as cursor:
             cursor.execute("DROP TABLE IF EXISTS users")
             self.conn.commit()
 
-
     def __del__(self):
         self._drop_table()
-
 
     def get_all_accounts(self) -> List[Account]:
         accounts = []
@@ -53,44 +49,56 @@ class AccountsPostgresStorage(AccountsStorageProtocol):
             rows = cursor.fetchall()
             for row in rows:
                 account = Account(
-                    id=row['id'],
-                    phone_number=row['phone_number'],
-                    password=row['password'],
-                    status=AccountStatus(row['status'])
+                    id=row["id"],
+                    phone_number=row["phone_number"],
+                    password=row["password"],
+                    status=AccountStatus(row["status"]),
                 )
                 accounts.append(account)
 
         return accounts
-        
 
     def mark_account_as_blocked(self, account_id: int):
         with self.conn.cursor() as cursor:
-            cursor.execute("UPDATE users SET status = %s WHERE id = %s", (AccountStatus.BLOCKED.value, account_id))
+            cursor.execute(
+                "UPDATE users SET status = %s WHERE id = %s",
+                (AccountStatus.BLOCKED.value, account_id),
+            )
             self.conn.commit()
-
 
     def add_account(self) -> int:
         random_id = random.randint(1000, 9999)
-        random_phone = f'8910{random_id}'
-        account = Account(random_id, random_phone, 'password0000', AccountStatus.PENDING)
-        
+        random_phone = f"8910{random_id}"
+        account = Account(
+            random_id, random_phone, "password0000", AccountStatus.PENDING
+        )
+
         with self.conn.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO users (id, phone_number, password, status) VALUES (%s, %s, %s, %s)",
-                (account.id, account.phone_number, account.password, account.status.value)
+                (
+                    account.id,
+                    account.phone_number,
+                    account.password,
+                    account.status.value,
+                ),
             )
             self.conn.commit()
-        
-        return account.id
 
+        return account.id
 
     def set_account_processing(self, account_id: int) -> Optional[Account]:
         with self.conn.cursor() as cursor:
-            cursor.execute("UPDATE users SET status = %s WHERE id = %s", (AccountStatus.PROCESSING.value, account_id))
+            cursor.execute(
+                "UPDATE users SET status = %s WHERE id = %s",
+                (AccountStatus.PROCESSING.value, account_id),
+            )
             self.conn.commit()
-            
 
     def set_account_pending(self, account_id: int) -> Optional[Account]:
         with self.conn.cursor() as cursor:
-            cursor.execute("UPDATE users SET status = %s WHERE id = %s", (AccountStatus.PENDING.value, account_id))
+            cursor.execute(
+                "UPDATE users SET status = %s WHERE id = %s",
+                (AccountStatus.PENDING.value, account_id),
+            )
             self.conn.commit()

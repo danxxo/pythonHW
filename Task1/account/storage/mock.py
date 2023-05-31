@@ -25,9 +25,7 @@ class MockAccountsStorage(AccountsStorageProtocol):
         curr_accounts_count = len(self.accounts)
         new_acc_id = curr_accounts_count + 1
         new_acc = Account(
-            id=new_acc_id,
-            password='password',
-            phone_number='88002000600',
+            id=new_acc_id, password="password", phone_number="88002000600",
         )
         self.accounts.append(new_acc)
 

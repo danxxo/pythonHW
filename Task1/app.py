@@ -48,8 +48,8 @@ def test_main():
         assert accounts[7].status == AccountStatus.PENDING
         assert accounts[8].status == AccountStatus.PENDING
         assert accounts[9].status == AccountStatus.BLOCKED
-        print(f'With realisation {r} everything is OK')
+        print(f"With realisation {r} everything is OK")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_main()

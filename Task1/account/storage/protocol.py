@@ -4,7 +4,6 @@ from account.model import Account
 
 
 class AccountsStorageProtocol(Protocol):
-
     def get_all_accounts(self) -> List[Account]:
         ...
 
