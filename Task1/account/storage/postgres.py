@@ -49,7 +49,7 @@ class AccountsPostgresStorage(AccountsStorageProtocol):
         accounts = []
 
         with self.conn.cursor(cursor_factory=DictCursor) as cursor:
-            cursor.execute("SELECT * FROM users")
+            cursor.execute("SELECT * FROM users ORDER BY id")
             rows = cursor.fetchall()
             for row in rows:
                 account = Account(
@@ -68,6 +68,7 @@ class AccountsPostgresStorage(AccountsStorageProtocol):
             cursor.execute("UPDATE users SET status = %s WHERE id = %s", (AccountStatus.BLOCKED.value, account_id))
             self.conn.commit()
 
+
     def add_account(self) -> int:
         random_id = random.randint(1000, 9999)
         random_phone = f'8910{random_id}'
@@ -82,10 +83,12 @@ class AccountsPostgresStorage(AccountsStorageProtocol):
         
         return account.id
 
+
     def set_account_processing(self, account_id: int) -> Optional[Account]:
         with self.conn.cursor() as cursor:
             cursor.execute("UPDATE users SET status = %s WHERE id = %s", (AccountStatus.PROCESSING.value, account_id))
             self.conn.commit()
+            
 
     def set_account_pending(self, account_id: int) -> Optional[Account]:
         with self.conn.cursor() as cursor:
