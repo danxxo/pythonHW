@@ -6,12 +6,6 @@ from account.storage.protocol import AccountsStorageProtocol
 import json
 
 
-def decode_account_data(account_data: dict) -> dict:
-    account_data_str = json.dumps(account_data)
-    account_data_dict = json.loads(account_data_str)
-    return account_data_dict
-
-
 class AccountsRedisStorage(AccountsStorageProtocol):
     def __init__(self):
         self.db_client = redis.Redis(host="localhost", port=6379)
@@ -23,8 +17,7 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         accounts = []
 
         for account_data in account_records:
-            account_data_dict = decode_account_data(account_data)
-            account = Account.as_dict(account_data_dict)
+            account = Account.as_dict(account_data)
             accounts.append(account)
 
         return accounts
@@ -33,9 +26,8 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         account_records = self._get_account_records()
 
         for account_data in account_records:
-            account_data_dict = decode_account_data(account_data)
-            if account_data_dict["id"] == account_id:
-                account = Account(**account_data_dict)
+            if account_data["id"] == account_id:
+                account = Account(**account_data)
                 return account
 
         return None
@@ -44,12 +36,11 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         account_records = self._get_account_records()
 
         for index, account_data in enumerate(account_records):
-            account_data_dict = decode_account_data(account_data)
 
-            if account_data_dict["id"] == account_id:
-                account_data_dict["status"] = "blocked"
+            if account_data["id"] == account_id:
+                account_data["status"] = "blocked"
 
-                updated_account_data_str = json.dumps(account_data_dict)
+                updated_account_data_str = json.dumps(account_data)
                 updated_account_data = updated_account_data_str.encode("utf-8")
 
                 self.db_client.lset(self.accounts_key, index, updated_account_data)
@@ -76,12 +67,11 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         account_records = self._get_account_records()
 
         for index, account_data in enumerate(account_records):
-            account_data_dict = decode_account_data(account_data)
 
-            if account_data_dict["id"] == account_id:
-                account_data_dict["status"] = "processing"
+            if account_data["id"] == account_id:
+                account_data["status"] = "processing"
 
-                updated_account_data_str = json.dumps(account_data_dict)
+                updated_account_data_str = json.dumps(account_data)
                 updated_account_data = updated_account_data_str.encode("utf-8")
 
                 self.db_client.lset(self.accounts_key, index, updated_account_data)
@@ -92,12 +82,11 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         account_records = self._get_account_records()
 
         for index, account_data in enumerate(account_records):
-            account_data_dict = decode_account_data(account_data)
 
-            if account_data_dict["id"] == account_id:
-                account_data_dict["status"] = "pending"
+            if account_data["id"] == account_id:
+                account_data["status"] = "pending"
 
-                updated_account_data_str = json.dumps(account_data_dict)
+                updated_account_data_str = json.dumps(account_data)
                 updated_account_data = updated_account_data_str.encode("utf-8")
 
                 self.db_client.lset(self.accounts_key, index, updated_account_data)
