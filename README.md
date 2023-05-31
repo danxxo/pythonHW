@@ -1,3 +1,7 @@
-#PYTHONHW (DAVYDOV, BUSAROV, lastochkin)
+# PYTHONHW (DAVYDOV, BUSAROV, lastochkin)
+
+- POSTGRESQL
+- MONGODB
+- REDIS
 
 ![KROLIK](/img/qwe5.jpg)
