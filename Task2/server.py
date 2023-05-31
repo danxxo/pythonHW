@@ -92,6 +92,12 @@ class Server:
                 break
 
 
+    def check_valid_user_name(self, connection, user):
+        while user in self.user_connection_table:
+            connection.send('InvalidUserName'.encode('utf-8'))
+            user = connection.recv(1024).decode('utf-8')
+        return user
+
     def run(self):
         self.create_cached_files()
         while True:
@@ -110,13 +116,11 @@ class Server:
                     print('new room: ', room)
                     self.create_room(room)
 
+                user = self.check_valid_user_name(connection, user)
+
                 self.user_connection_table[user] = connection
                 self.rooms[room].append(user)
 
-                # if len(self.rooms[room]) > 1:
-                #     connection.send(
-                #         "--- You have unread room messages! ---".encode("utf-8")
-                #     )
                 connection.send(self.recieve_cache(room))
 
                 self.send_room_message(

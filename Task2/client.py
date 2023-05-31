@@ -23,13 +23,16 @@ class Client:
             try:
                 message = self.client_socket.recv(1024).decode("utf-8")
                 if message == 'close':
-                    print('clent recieving will be closed')
                     self.client_socket.close()
                     break
                 elif message == "User":
                     self.client_socket.send(self.user.encode("utf-8"))
                 elif message == "Room":
                     self.client_socket.send(self.room.encode("utf-8"))
+                elif message == "InvalidUserName":
+                    new_user_name = input("Invalid User Name. Try new: ")
+                    self.user = new_user_name
+                    self.client_socket.send(new_user_name.encode('utf-8'))
                 else:
                     print(message)
             except:
