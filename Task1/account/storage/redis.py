@@ -1,9 +1,15 @@
 import redis
 import random
 from typing import Optional, List
-from account.model import Account, AccountStatus
+from account.model import Account
 from account.storage.protocol import AccountsStorageProtocol
 import json
+
+
+def decode_account_data(account_data: dict) -> dict:
+    account_data_str = json.dumps(account_data)
+    account_data_dict = json.loads(account_data_str)
+    return account_data_dict
 
 
 class AccountsRedisStorage(AccountsStorageProtocol):
@@ -12,20 +18,13 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         self.accounts_key = "accounts"
         self.db_client.flushdb()
 
-    def _get_account_records(self) -> List[dict]:
-        account_records = self.db_client.lrange(self.accounts_key, 0, -1)
-        return [json.loads(record) for record in account_records]
-
     def get_all_accounts(self) -> List[Account]:
         account_records = self._get_account_records()
         accounts = []
 
         for account_data in account_records:
-            account_data_str = json.dumps(account_data)
-            account_data_dict = json.loads(account_data_str)
-
+            account_data_dict = decode_account_data(account_data)
             account = Account.as_dict(account_data_dict)
-
             accounts.append(account)
 
         return accounts
@@ -34,8 +33,7 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         account_records = self._get_account_records()
 
         for account_data in account_records:
-            account_data_str = json.dumps(account_data)
-            account_data_dict = json.loads(account_data_str)
+            account_data_dict = decode_account_data(account_data)
             if account_data_dict["id"] == account_id:
                 account = Account(**account_data_dict)
                 return account
@@ -46,8 +44,7 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         account_records = self._get_account_records()
 
         for index, account_data in enumerate(account_records):
-            account_data_str = json.dumps(account_data)
-            account_data_dict = json.loads(account_data_str)
+            account_data_dict = decode_account_data(account_data)
 
             if account_data_dict["id"] == account_id:
                 account_data_dict["status"] = "blocked"
@@ -75,11 +72,11 @@ class AccountsRedisStorage(AccountsStorageProtocol):
         return account.id
 
     def set_account_processing(self, account_id: int) -> None:
+        print(f"account {account_id} status to 'processing'")
         account_records = self._get_account_records()
 
         for index, account_data in enumerate(account_records):
-            account_data_str = json.dumps(account_data)
-            account_data_dict = json.loads(account_data_str)
+            account_data_dict = decode_account_data(account_data)
 
             if account_data_dict["id"] == account_id:
                 account_data_dict["status"] = "processing"
@@ -91,11 +88,11 @@ class AccountsRedisStorage(AccountsStorageProtocol):
                 break
 
     def set_account_pending(self, account_id: int):
+        print(f"account {account_id} status to 'pending'")
         account_records = self._get_account_records()
 
         for index, account_data in enumerate(account_records):
-            account_data_str = json.dumps(account_data)
-            account_data_dict = json.loads(account_data_str)
+            account_data_dict = decode_account_data(account_data)
 
             if account_data_dict["id"] == account_id:
                 account_data_dict["status"] = "pending"
@@ -105,3 +102,7 @@ class AccountsRedisStorage(AccountsStorageProtocol):
 
                 self.db_client.lset(self.accounts_key, index, updated_account_data)
                 break
+
+    def _get_account_records(self) -> List[dict]:
+        account_records = self.db_client.lrange(self.accounts_key, 0, -1)
+        return [json.loads(record) for record in account_records]
