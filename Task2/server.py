@@ -1,4 +1,4 @@
-from threading import Event, Lock, Thread, active_count
+from threading import Event, Lock, Thread
 from pathlib import Path
 import socket
 import time
@@ -16,11 +16,10 @@ class Server:
                 self.server_socket.bind((self.host, self.port))
                 break
             except OSError as er:
-                print(f'Server error {er}. Retrying in 5 sec..(approx 15 secs..)')
+                print(f"Server error {er}. Retrying in 5 sec..(approx 15 secs..)")
                 time.sleep(5)
 
         self.server_socket.listen()
-
         self.delete_cache_after_end = delete_cache_after_end
 
         print("Starting server")
@@ -37,7 +36,7 @@ class Server:
     def create_one_cached_file(self, room):
         file_name = room + ".txt"
         file_path = self.room_path.joinpath(file_name)
-        with open(file_path, 'w') as file:
+        with open(file_path, "w") as file:
             file.write(f"cache_room_{room}\n")
 
     def create_cached_files(self):
@@ -54,16 +53,16 @@ class Server:
         file_path = self.room_path.joinpath(f"{room}.txt")
         with open(file_path, "r") as file:
             message = file.read()
-        message = message.replace(f'cache_room_{room}\n', '')
+        message = message.replace(f"cache_room_{room}\n", "")
         return message[:-1].encode("utf-8")
-    
+
     def delete_cache(self):
         file_iter = Path.iterdir(self.room_path)
         for x in list(file_iter):
             Path(x).unlink(missing_ok=True)
 
     def create_room(self, room):
-        self.rooms.update({f'{room}': []})
+        self.rooms.update({f"{room}": []})
         self.create_one_cached_file(room)
 
     def send_room_message(self, room, message):
@@ -77,9 +76,9 @@ class Server:
             try:
                 connection = self.user_connection_table.get(user)
                 message = connection.recv(1024)
-                decoded_msg = message.decode('utf-8')
-                if decoded_msg == 'close':
-                    connection.send('close'.encode('utf-8'))
+                decoded_msg = message.decode("utf-8")
+                if decoded_msg == "close":
+                    connection.send("close".encode("utf-8"))
                     connection.close()
                     self.user_connection_table.pop(user)
                     self.rooms[room].remove(user)
@@ -91,18 +90,17 @@ class Server:
             except:
                 break
 
-
     def check_valid_user_name(self, connection, user):
         while user in self.user_connection_table:
-            connection.send('InvalidUserName'.encode('utf-8'))
-            user = connection.recv(1024).decode('utf-8')
+            connection.send("Your username is invalid. Press Enter".encode("utf-8"))
+            connection.send("InvalidUserName".encode("utf-8"))
+            user = connection.recv(1024).decode("utf-8")
         return user
 
     def run(self):
         self.create_cached_files()
         while True:
             try:
-        
                 print("Server is running")
                 connection, address = self.server_socket.accept()
                 print(f"connection on {address}")
@@ -113,30 +111,33 @@ class Server:
                 room = connection.recv(1024).decode("utf-8")
 
                 if room not in self.rooms:
-                    print('new room: ', room)
+                    print("new room: ", room)
                     self.create_room(room)
 
                 user = self.check_valid_user_name(connection, user)
-
                 self.user_connection_table[user] = connection
                 self.rooms[room].append(user)
-
                 connection.send(self.recieve_cache(room))
-
                 self.send_room_message(
                     room, f"'{user}' connected to the room. Welcome".encode("utf-8")
                 )
 
                 thread = Thread(target=self.handle_client, args=[room, user])
                 thread.start()
-                # thread.join()
-            except KeyboardInterrupt:
-                print('server is closed')
-                connection.send('The server was closed. Type \'close\' to exit'.encode('utf-8'))
+
+            except:
+                print("server is closed")
+                try:
+                    connection.send(
+                        "The server was closed. Type 'close' to exit".encode("utf-8")
+                    )
+                except:
+                    pass
+
                 self.server_socket.close()
                 if self.delete_cache_after_end:
-                    self.delete_cache() # There we clean the 
-                    print('Cache was deleted')
+                    self.delete_cache()  # There we clean the
+                    print("Cache was deleted")
                 break
 
 
