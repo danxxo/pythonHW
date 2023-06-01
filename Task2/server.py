@@ -132,6 +132,7 @@ class Server:
                 # thread.join()
             except KeyboardInterrupt:
                 print('server is closed')
+                connection.send('The server was closed. Type \'close\' to exit'.encode('utf-8'))
                 self.server_socket.close()
                 if self.delete_cache_after_end:
                     self.delete_cache() # There we clean the 

@@ -41,13 +41,16 @@ class Client:
 
     def client_send(self):
         while True:
-            input_msg = input()
-            if input_msg == 'close':
-                self.client_socket.send(input_msg.encode("utf-8"))
+            try:
+                input_msg = input()
+                if input_msg == 'close':
+                    self.client_socket.send(input_msg.encode("utf-8"))
+                    break
+                else:
+                    message = f"'{self.user}': {input_msg}"
+                    self.client_socket.send(message.encode("utf-8"))
+            except:
                 break
-            else:
-                message = f"'{self.user}': {input_msg}"
-                self.client_socket.send(message.encode("utf-8"))
 
 
 client = Client()
