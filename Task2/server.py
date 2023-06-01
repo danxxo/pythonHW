@@ -1,5 +1,6 @@
 from threading import Event, Lock, Thread
 from pathlib import Path
+from colors import Tcolors
 import socket
 import time
 
@@ -16,7 +17,11 @@ class Server:
                 self.server_socket.bind((self.host, self.port))
                 break
             except OSError as er:
-                print(f"Server error {er}. Retrying in 5 sec..(approx 15 secs..)")
+                print(
+                    Tcolors.fail(
+                        f"Server error {er}. Retrying in 5 sec..(approx 15 secs..)"
+                    )
+                )
                 time.sleep(5)
 
         self.server_socket.listen()
@@ -101,7 +106,6 @@ class Server:
         self.create_cached_files()
         while True:
             try:
-                print("Server is running")
                 connection, address = self.server_socket.accept()
                 print(f"connection on {address}")
 
@@ -137,7 +141,7 @@ class Server:
                 self.server_socket.close()
                 if self.delete_cache_after_end:
                     self.delete_cache()  # There we clean the
-                    print("Cache was deleted")
+                    print(Tcolors.warning("Cache was deleted"))
                 break
 
 

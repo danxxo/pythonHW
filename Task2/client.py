@@ -1,3 +1,4 @@
+from colors import Tcolors
 import socket
 import threading
 import time
@@ -14,10 +15,10 @@ class Client:
                 self.client_socket.connect((self.host, self.port))
                 break
             except ConnectionRefusedError as ex:
-                print(f"Client exc: {ex}. Wait for server in 5 sec...")
+                print(Tcolors.fail(f"Client exc: {ex}. Wait for server in 5 sec..."))
                 time.sleep(5)
 
-        print("To end the connection, type: close")
+        print(Tcolors.warning("To end the connection, type: close"))
 
         self.user = input("User: ")
         self.room = input("Room: ")
@@ -36,7 +37,9 @@ class Client:
                     case "Room":
                         self.client_socket.send(self.room.encode("utf-8"))
                     case "InvalidUserName":
-                        new_user_name = input("Invalid User Name. Type new: ")
+                        new_user_name = input(
+                            Tcolors.warning("Invalid User Name. Type new: ")
+                        )
                         self.user = new_user_name
                         self.client_socket.send(new_user_name.encode("utf-8"))
                     case _:
